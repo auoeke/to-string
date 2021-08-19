@@ -12,6 +12,7 @@ import net.bytebuddy.agent.ByteBuddyAgent;
 import net.gudenau.lib.unsafe.Unsafe;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import user11681.reflect.Accessor;
 import user11681.reflect.Fields;
 
 public class ToStringGenerator implements Function<Object, Object> {
@@ -76,7 +77,7 @@ public class ToStringGenerator implements Function<Object, Object> {
 
                 for (var field : fields) {
                     try {
-                        var value = Unsafe.trustedLookup.unreflectVarHandle(field).get(object2);
+                        var value = Accessor.get(object2, field);
                         fieldString.append(field.getName()).append(": ").append(value == object2 ? "this" : parents.contains(value) ? defaultString.apply(value) : value).append(System.lineSeparator());
                     } catch (Throwable throwable) {
                         throw Unsafe.throwException(throwable);
