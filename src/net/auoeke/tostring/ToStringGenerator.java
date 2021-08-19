@@ -76,17 +76,13 @@ public class ToStringGenerator implements Function<Object, String> {
         parents.add(object);
 
         var string = generators.computeIfAbsent(object.getClass(), type -> {
-            var fields = Fields.allInstanceFields(type).toArray(Field[]::new);
-
-            if (fields.length == 0) {
-                if (type.isArray()) {
-                    return array -> Stream.of(Types.box(array)).map(element -> objectString(parents, array, element)).collect(Collectors.joining(", ", defaultString(array) + " [", "]"));
-                }
-
-                return ToStringGenerator::defaultString;
+            if (type.isArray()) {
+                return array -> Stream.of(Types.box(array)).map(element -> objectString(parents, array, element)).collect(Collectors.joining(", ", defaultString(array) + " [", "]"));
             }
 
-            return object2 -> {
+            var fields = Fields.allInstanceFields(type).toArray(Field[]::new);
+
+            return fields.length == 0 ? ToStringGenerator::defaultString : object2 -> {
                 var fieldString = new StringBuilder();
 
                 for (var field : fields) {
@@ -101,6 +97,7 @@ public class ToStringGenerator implements Function<Object, String> {
                     .map(line -> "    " + line + System.lineSeparator())
                     .collect(Collectors.joining("", defaultString(object2) + " {" + System.lineSeparator(), "}"));
             };
+
         }).apply(object);
 
         parents.remove(object);
@@ -108,10 +105,14 @@ public class ToStringGenerator implements Function<Object, String> {
         return string;
     }
 
+    private static String typeName(Class<?> type) {
+        return type.getName().replaceFirst("^java\\.lang\\.", "");
+    }
+
     private static String defaultString(Object object) {
         var type2 = object.getClass();
 
-        return "%s@%x".formatted(type2.isArray() ? "%s[%d]".formatted(type2.componentType().getName(), Array.getLength(object)) : type2.getName(), object.hashCode());
+        return "%s@%x".formatted(type2.isArray() ? "%s[%d]".formatted(typeName(type2.componentType()), Array.getLength(object)) : typeName(type2), object.hashCode());
     }
 
     private static String objectString(Set<Object> parents, Object original, Object object) {
