@@ -1,0 +1,25 @@
+plugins {
+    id("java")
+}
+
+sourceCompatibility = 16
+targetCompatibility = 16
+
+sourceSets {
+    main {
+        java.srcDir("src")
+    }
+}
+
+repositories {
+    mavenCentral()
+
+    maven {url = "https://auoeke.jfrog.io/artifactory/maven"}
+}
+
+dependencies {
+    implementation("org.ow2.asm:asm:latest.integration")
+    implementation("org.ow2.asm:asm-tree:latest.integration")
+    implementation("net.bytebuddy:byte-buddy-agent:latest.integration")
+    implementation("user11681:reflect:latest.integration")
+}
