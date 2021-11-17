@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("maven-publish")
 }
 
 sourceCompatibility = 16
@@ -9,12 +10,16 @@ sourceSets {
     main {
         java.srcDir("src")
     }
+
+    test {
+        java.srcDir("test")
+    }
 }
 
 repositories {
     mavenCentral()
 
-    maven {url = "https://auoeke.jfrog.io/artifactory/maven"}
+    maven {url = "https://maven.auoeke.net"}
 }
 
 dependencies {
@@ -22,4 +27,30 @@ dependencies {
     implementation("org.ow2.asm:asm-tree:latest.integration")
     implementation("net.bytebuddy:byte-buddy-agent:latest.integration")
     implementation("net.auoeke:reflect:latest.integration")
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:latest.integration")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+}
+
+test {
+    useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from(components.java)
+        }
+    }
+
+    repositories {
+        maven {
+            url = "https://maven.auoeke.net"
+
+            credentials {
+                username = System.properties["maven.username"]
+                password = System.properties["maven.password"]
+            }
+        }
+    }
 }

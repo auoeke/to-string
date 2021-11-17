@@ -1,6 +1,6 @@
 package net.auoeke.tostring;
 
-import java.lang.annotation.RetentionPolicy;
+import java.lang.instrument.UnmodifiableClassException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.HashSet;
@@ -19,18 +19,17 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 public class ToStringGenerator implements Function<Object, String> {
-    public static final IdentityHashMap<Class<?>, Function<Object, String>> generators = new IdentityHashMap<>();
-
     private static final String PROPERTY = "toStringGenerator";
+
+    private static final IdentityHashMap<Class<?>, Function<Object, String>> generators = new IdentityHashMap<>();
 
     // This field is used for keeping track of objects that are being stringified in order to avoid cyclic references.
     private static final ThreadLocal<Set<Object>> stringifying = ThreadLocal.withInitial(HashSet::new);
 
-    public static void main(String... args) throws Throwable {
+    public static void initialize() {
         // The bootstrap class loader does not recognize this class; so we abuse the system properties as a global object store and virtual dispatch by implementing Function.
         System.getProperties().put(PROPERTY, new ToStringGenerator());
 
-        var instrumentation = ByteBuddyAgent.install();
         ObjectNodeTransformer transformer = node -> node.methods.stream().filter(method -> method.name.equals("toString")).findAny().ifPresent(toString -> {
             toString.instructions.clear();
             toString.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(System.class), "getProperties", "()Ljava/util/Properties;", false);
@@ -43,31 +42,16 @@ public class ToStringGenerator implements Function<Object, String> {
             toString.visitInsn(Opcodes.ARETURN);
         });
 
+        var instrumentation = ByteBuddyAgent.install();
         instrumentation.addTransformer(transformer, true);
-        instrumentation.retransformClasses(Object.class);
-        instrumentation.removeTransformer(transformer);
 
-        //noinspection unused
-        System.out.println(new Object() {
-            private final int i = 123;
-            private final String string = "sample text";
-            private final byte b = 0b01110011;
-            private final float[] array = {1.5F, 27, 49, 35.1F};
-            private final Object dis = this;
-            private final Object object = new Object();
-            private final Object anonymous = new Object() {
-                private final short s = (short) 0xFFFF;
-                private final long time = System.nanoTime();
-                private final RetentionPolicy policy = RetentionPolicy.RUNTIME;
-            };
-            private final Object customToString = new Object() {
-                @Override
-                public String toString() {
-                    return "stateless instance of an anonymous Object class";
-                }
-            };
-            private final Object[] objectArray = {this.dis, this.object, this.anonymous, this.customToString};
-        });
+        try {
+            instrumentation.retransformClasses(Object.class);
+        } catch (UnmodifiableClassException exception) {
+            throw Unsafe.throwException(exception);
+        }
+
+        instrumentation.removeTransformer(transformer);
     }
 
     @Override

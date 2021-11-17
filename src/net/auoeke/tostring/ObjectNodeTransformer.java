@@ -7,7 +7,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 
-public interface ObjectNodeTransformer extends ClassFileTransformer {
+interface ObjectNodeTransformer extends ClassFileTransformer {
     @Override
     default byte[] transform(ClassLoader loader, String name, Class<?> type, ProtectionDomain protectionDomain, byte[] bytecode) {
         if (type == Object.class) {
