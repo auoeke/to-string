@@ -1,3 +1,9 @@
+buildscript {
+    dependencyLocking {
+        lockAllConfigurations()
+    }
+}
+
 plugins {
     id("java")
     id("maven-publish")
