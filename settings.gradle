@@ -1,1 +1,5 @@
-rootProject.name = "to-string"
+pluginManagement {
+    repositories {
+        maven {url = "https://maven.auoeke.net"}
+    }
+}

@@ -1,56 +1,31 @@
 plugins {
     id("java")
     id("maven-publish")
+    id("gronk").version("latest.release")
 }
 
-sourceCompatibility = 16
-targetCompatibility = 16
+javaVersion(17)
 
-sourceSets {
-    main {
-        java.srcDir("src")
-    }
-
-    test {
-        java.srcDir("test")
-    }
+gronk {
+    uncheck()
 }
 
 repositories {
     mavenCentral()
-
-    maven {url = "https://maven.auoeke.net"}
 }
 
 dependencies {
-    implementation("org.ow2.asm:asm:latest.integration")
-    implementation("org.ow2.asm:asm-tree:latest.integration")
-    implementation("net.bytebuddy:byte-buddy-agent:latest.integration")
-    implementation("net.auoeke:reflect:latest.integration")
+    implementation(
+        "org.ow2.asm:asm",
+        "org.ow2.asm:asm-tree",
+        "net.bytebuddy:byte-buddy-agent",
+        "net.auoeke:reflect"
+    )
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:latest.integration")
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
 test {
     useJUnitPlatform()
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            from(components.java)
-        }
-    }
-
-    repositories {
-        maven {
-            url = "https://maven.auoeke.net"
-
-            credentials {
-                username = System.properties["maven.username"]
-                password = System.properties["maven.password"]
-            }
-        }
-    }
 }

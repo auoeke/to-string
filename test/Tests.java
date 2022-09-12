@@ -1,5 +1,5 @@
 import java.lang.annotation.RetentionPolicy;
-import net.auoeke.tostring.ToStringGenerator;
+import tostring.ToStringGenerator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.annotation.Testable;

@@ -1,8 +1,6 @@
-package net.auoeke.tostring;
+package tostring;
 
-import java.lang.instrument.UnmodifiableClassException;
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Properties;
@@ -14,7 +12,6 @@ import net.auoeke.reflect.Accessor;
 import net.auoeke.reflect.Fields;
 import net.auoeke.reflect.Types;
 import net.bytebuddy.agent.ByteBuddyAgent;
-import net.gudenau.lib.unsafe.Unsafe;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -30,7 +27,7 @@ public class ToStringGenerator implements Function<Object, String> {
         // The bootstrap class loader does not recognize this class; so we abuse the system properties as a global object store and virtual dispatch by implementing Function.
         System.getProperties().put(PROPERTY, new ToStringGenerator());
 
-        ObjectNodeTransformer transformer = node -> node.methods.stream().filter(method -> method.name.equals("toString")).findAny().ifPresent(toString -> {
+        var transformer = ((NodeTransformer) node -> node.methods.stream().filter(method -> method.name.equals("toString")).findAny().ifPresent(toString -> {
             toString.instructions.clear();
             toString.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(System.class), "getProperties", "()Ljava/util/Properties;", false);
             toString.visitLdcInsn(PROPERTY);
@@ -40,17 +37,11 @@ public class ToStringGenerator implements Function<Object, String> {
             toString.visitMethodInsn(Opcodes.INVOKEINTERFACE, Type.getInternalName(Function.class), "apply", "(Ljava/lang/Object;)Ljava/lang/Object;", true);
             toString.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(String.class));
             toString.visitInsn(Opcodes.ARETURN);
-        });
+        })).ofType(Object.class);
 
         var instrumentation = ByteBuddyAgent.install();
         instrumentation.addTransformer(transformer, true);
-
-        try {
-            instrumentation.retransformClasses(Object.class);
-        } catch (UnmodifiableClassException exception) {
-            throw Unsafe.throwException(exception);
-        }
-
+        instrumentation.retransformClasses(Object.class);
         instrumentation.removeTransformer(transformer);
     }
 
@@ -64,17 +55,13 @@ public class ToStringGenerator implements Function<Object, String> {
                 return array -> Stream.of(Types.box(array)).map(element -> objectString(parents, array, element)).collect(Collectors.joining(", ", defaultString(array) + " [", "]"));
             }
 
-            var fields = Fields.allInstanceFields(type).toArray(Field[]::new);
+            var fields = Fields.allInstance(type).toList();
 
-            return fields.length == 0 ? ToStringGenerator::defaultString : object2 -> {
+            return fields.isEmpty() ? ToStringGenerator::defaultString : object2 -> {
                 var fieldString = new StringBuilder();
 
                 for (var field : fields) {
-                    try {
-                        fieldString.append(field.getName()).append(": ").append(objectString(parents, object2, Accessor.get(object2, field))).append(System.lineSeparator());
-                    } catch (Throwable throwable) {
-                        throw Unsafe.throwException(throwable);
-                    }
+                    fieldString.append(field.getName()).append(": ").append(objectString(parents, object2, Accessor.get(object2, field))).append(System.lineSeparator());
                 }
 
                 return Stream.of(fieldString.toString().split(System.lineSeparator()))
