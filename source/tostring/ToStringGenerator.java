@@ -68,7 +68,6 @@ public class ToStringGenerator implements Function<Object, String> {
                     .map(line -> "    " + line + System.lineSeparator())
                     .collect(Collectors.joining("", defaultString(object2) + " {" + System.lineSeparator(), "}"));
             };
-
         }).apply(object);
 
         parents.remove(object);
