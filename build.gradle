@@ -26,6 +26,10 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
+dependencyLocking {
+    lockAllConfigurations()
+}
+
 test {
     useJUnitPlatform()
 }
