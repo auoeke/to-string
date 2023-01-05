@@ -53,17 +53,11 @@ public class ToStringGenerator implements Function<Object, String> {
 
 			var fields = Fields.allInstance(type).toList();
 
-			return fields.isEmpty() ? ToStringGenerator::defaultString : object2 -> {
-				var fieldString = new StringBuilder();
-
-				for (var field : fields) {
-					fieldString.append(field.getName()).append(": ").append(objectString(parents, object2, Accessor.get(object2, field))).append(System.lineSeparator());
-				}
-
-				return Stream.of(fieldString.toString().split(System.lineSeparator()))
+			return fields.isEmpty() ? ToStringGenerator::defaultString : object2 ->
+				fields.stream().map(field -> field.getName() + ": " + objectString(parents, object2, Accessor.get(object2, field)))
+					.flatMap(field -> Stream.of(field.split(System.lineSeparator())))
 					.map(line -> "    " + line + System.lineSeparator())
 					.collect(Collectors.joining("", defaultString(object2) + " {" + System.lineSeparator(), "}"));
-			};
 		}).apply(object);
 
 		parents.remove(object);
