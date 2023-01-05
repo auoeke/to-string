@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.auoeke.reflect.Accessor;
 import net.auoeke.reflect.Fields;
+import net.auoeke.reflect.Reflect;
 import net.auoeke.reflect.Types;
-import net.bytebuddy.agent.ByteBuddyAgent;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -39,7 +39,7 @@ public class ToStringGenerator implements Function<Object, String> {
             toString.visitInsn(Opcodes.ARETURN);
         })).ofType(Object.class);
 
-        var instrumentation = ByteBuddyAgent.install();
+        var instrumentation = Reflect.instrument().value();
         instrumentation.addTransformer(transformer, true);
         instrumentation.retransformClasses(Object.class);
         instrumentation.removeTransformer(transformer);

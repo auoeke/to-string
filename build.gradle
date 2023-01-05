@@ -16,17 +16,8 @@ gronk {
     uncheck()
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
-    implementation(
-        "org.ow2.asm:asm",
-        "org.ow2.asm:asm-tree",
-        "net.bytebuddy:byte-buddy-agent",
-        "net.auoeke:reflect"
-    )
+    implementation("net.auoeke:reflect", "org.ow2.asm:asm-tree")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
