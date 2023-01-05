@@ -1,32 +1,32 @@
 buildscript {
-    dependencyLocking {
-        lockAllConfigurations()
-    }
+	dependencyLocking {
+		lockAllConfigurations()
+	}
 }
 
 plugins {
-    id("java")
-    id("maven-publish")
-    id("net.auoeke.gronk").version("latest.release")
+	id("java")
+	id("maven-publish")
+	id("net.auoeke.gronk").version("latest.release")
 }
 
 javaVersion(17)
 
 gronk {
-    uncheck()
+	uncheck()
 }
 
 dependencies {
-    implementation("net.auoeke:reflect", "org.ow2.asm:asm-tree")
+	implementation("net.auoeke:reflect", "org.ow2.asm:asm-tree")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+	testImplementation("org.junit.jupiter:junit-jupiter-api")
+	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
 dependencyLocking {
-    lockAllConfigurations()
+	lockAllConfigurations()
 }
 
 test {
-    useJUnitPlatform()
+	useJUnitPlatform()
 }

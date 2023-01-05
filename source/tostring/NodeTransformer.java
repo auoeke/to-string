@@ -7,17 +7,16 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 
 interface NodeTransformer extends ClassTransformer {
-    @Override
-    default byte[] transform(Module module, ClassLoader loader, String name, Class<?> type, ProtectionDomain protectionDomain, byte[] bytecode) {
-        var node = new ClassNode();
-        new ClassReader(bytecode).accept(node, 0);
+	@Override default byte[] transform(Module module, ClassLoader loader, String name, Class<?> type, ProtectionDomain protectionDomain, byte[] bytecode) {
+		var node = new ClassNode();
+		new ClassReader(bytecode).accept(node, 0);
 
-        this.transform(node);
+		this.transform(node);
 
-        var writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-        node.accept(writer);
-        return writer.toByteArray();
-    }
+		var writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+		node.accept(writer);
+		return writer.toByteArray();
+	}
 
-    void transform(ClassNode node);
+	void transform(ClassNode node);
 }
