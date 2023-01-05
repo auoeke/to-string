@@ -3,8 +3,11 @@
 # This file is expected to be part of source control.
 commons-io:commons-io:2.11.0=classpath
 gradle.plugin.com.github.johnrengelman:shadow:7.1.2=classpath
-gronk:gronk.gradle.plugin:1.5.0=classpath
-net.auoeke:gronk:1.5.0=classpath
+net.auoeke.gronk:net.auoeke.gronk.gradle.plugin:4.0.0=classpath
+net.auoeke:gronk:4.0.0=classpath
+net.auoeke:reflect:6.1.3=classpath
+net.auoeke:result:0.4.1=classpath
+net.auoeke:unsafe:1.7.3=classpath
 org.apache.ant:ant-launcher:1.10.11=classpath
 org.apache.ant:ant:1.10.11=classpath
 org.apache.logging.log4j:log4j-api:2.17.1=classpath

@@ -7,7 +7,7 @@ buildscript {
 plugins {
     id("java")
     id("maven-publish")
-    id("gronk").version("latest.release")
+    id("net.auoeke.gronk").version("latest.release")
 }
 
 javaVersion(17)
